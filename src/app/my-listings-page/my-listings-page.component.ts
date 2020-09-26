@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {fakeMyListings} from '../fake.data';
 import {Listing } from '../types'; 
+import {ListingsService} from '../listings.service';
 @Component({
   selector: 'app-my-listings-page',
   templateUrl: './my-listings-page.component.html',
@@ -9,14 +10,24 @@ import {Listing } from '../types';
 export class MyListingsPageComponent implements OnInit {
 
   listings: Listing[] = [];
-  constructor() { }
+  constructor(private listingService: ListingsService) { }
 
   ngOnInit(): void {
-    this.listings = fakeMyListings;
+
+    this.listingService.getListingsForUser()
+      .subscribe(listings => {
+        this.listings = listings;
+      })
   }
 
   onDeleteClicked(listingId: string): void {
-    alert(`Deleting your listing with id ${listingId}`);
+    this.listingService.deleteListing(listingId)
+      .subscribe(result => {
+        this.listings = this.listings.filter(
+          listing => listing.id !== listingId
+        )
+        alert("Listing has been deleted");    
+    })
   }
 
 }
